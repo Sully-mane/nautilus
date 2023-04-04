@@ -1,0 +1,37 @@
+import math
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers.schedules import LearningRateSchedule
+from tensorflow.keras.callbacks import LearningRateScheduler
+
+# Nautilus learning rate scheduler class
+class NautilusLearningRateScheduler(LearningRateSchedule):
+    def __init__(self, initial_learning_rate, a, b):
+        self.initial_learning_rate = initial_learning_rate
+        self.a = a
+        self.b = b
+
+    def __call__(self, epoch):
+        theta = np.deg2rad(epoch)
+        r = self.a * math.exp(self.b * theta)
+        r_normalized = (r - self.a) / (math.exp(self.b * np.pi) - self.a)
+        return self.initial_learning_rate * r_normalized
+
+# Define your dataset and model architecture
+# ...
+
+# Set initial learning rate and nautilus function constants
+initial_learning_rate = 0.001
+a = 0.1
+b = 0.2
+
+# Create the nautilus learning rate scheduler
+nautilus_scheduler = NautilusLearningRateScheduler(initial_learning_rate, a, b)
+
+# Compile your model with an optimizer that uses the nautilus scheduler
+optimizer = Adam(learning_rate=nautilus_scheduler)
+model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+
+# Train the model
+model.fit(train_dataset, epochs=num_epochs, validation_data=val_dataset)
